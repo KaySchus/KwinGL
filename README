@@ -1,0 +1,5 @@
+KwinGL is an open-source game engine that utilizes LWJGL as the OpenGL Backend.
+
+Current Features -
+	Crappy Quad Implementation (NOT Object Oriented).
+	ShaderManager (It actually sort of works!)
