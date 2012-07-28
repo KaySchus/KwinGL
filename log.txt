@@ -9,9 +9,9 @@ Display Characteristsics -
 
 Beginning Initialization.... 
 Created, stored, and flipped Vertices, Color, and Indices Buffers respectively.
-Created one large VAO storing independent VBO's for Colors, Vertices, and Indices (NOT THE BEST WAY!)!
+Created one large VAO storing independent VBO's for Vertices and Indices. Interleaved!
 Succesfully loaded vertex and fragment shaders.
 Linking shaders.....
 Binding shader variables...
 Validated.
-Setup Time - 101ms
+Setup Time - 138ms

@@ -10,8 +10,8 @@ import org.lwjgl.opengl.PixelFormat;
 
 public class DisplayContext {
 	
-	private int DISPLAY_WIDTH = 1280;
-	private int DISPLAY_HEIGHT = 720;
+	private int DISPLAY_WIDTH = 800;
+	private int DISPLAY_HEIGHT = 800;
 	public String DISPLAY_TITLE = "Error - Not Named";
 	
 	private static DisplayContext instance = null;
@@ -49,10 +49,19 @@ public class DisplayContext {
 	
 	public void start() {
 		try {
+			Display.create();
+			String maxGLVer = GL11.glGetString(GL11.GL_VERSION);
+			System.out.println("Max OpenGL Version Available - " + maxGLVer);
+			Display.destroy();
+			
 			PixelFormat pixelFormat = new PixelFormat();
 			ContextAttribs contextAttributes = new ContextAttribs(3, 2);
 			contextAttributes.withForwardCompatible(true);
-			contextAttributes.withProfileCore(true);
+			
+			if (maxGLVer.equals("4.2.0")) {
+				contextAttributes.withProfileCore(true);
+				System.out.println("Core Profile Activated!");
+			}
 			
 			log.write("Display Context was set to OpenGL 3.2.");
 			
@@ -78,7 +87,7 @@ public class DisplayContext {
 		
 		GL11.glViewport(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT);
 		
-		game.Initialize();
+		game.Initialize(DISPLAY_WIDTH, DISPLAY_HEIGHT);
 		
 		while (!Display.isCloseRequested()) {
 			if (Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)) {

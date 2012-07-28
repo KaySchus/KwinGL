@@ -6,13 +6,15 @@ import org.lwjgl.*;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.*;
 import org.lwjgl.util.glu.GLU;
+import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector3f;
 
 public class Game {
 	
 	private TextureManager tManager = new TextureManager();
 	private ShaderManager sManager = new ShaderManager();
 	
-	private int vaoID, vboID, vboiID, indicesCount, vsID, fsID, pID;
+	private int vaoID, vboID, vboiID, indicesCount, vsID, fsID, pID, projectionMatrixLocation, viewMatrixLocation, modelMatrixLocation;
 	private int[] texIDs = new int[2];
 	
 	private int texSelector = 0;
@@ -21,12 +23,25 @@ public class Game {
 	private long lastFrame = 0;
 	public float totalTime = 0.0f;
 	
-	private ByteBuffer vertexByteBuffer = null; 
 	private ByteBuffer verticesByteBuffer = null;
 	
 	private Log log = Log.getInstance();
 	
-	public void Initialize() {
+	private Matrix4f projectionMatrix = null;
+	private Matrix4f viewMatrix = null;
+	private Matrix4f modelMatrix = null;
+	private Vector3f modelPos = null;
+	private Vector3f modelAngle = null;
+	private Vector3f modelScale = null;
+	private Vector3f cameraPos = null;
+	private FloatBuffer matrix44Buffer = null;
+	
+	private int dWidth, dHeight;
+	
+	public void Initialize(int width, int height) {
+		dWidth = width;
+		dHeight = height;
+		
 		getDelta();
 		
 		log.write("\n");
@@ -37,6 +52,7 @@ public class Game {
 		setupQuad();
 		setupShaders();
 		setupTextures();
+		setupMatrices();
 		
 		int setupTime = getDelta();
 		log.write("Setup Time - " + setupTime + "ms");	
@@ -49,8 +65,6 @@ public class Game {
 		Vertex v3 = new Vertex(); v3.setXYZ(0.5f, 0.5f, 0f); v3.setRGB(1, 1, 1); v3.setST(1, 0);
 		
 		vertices = new Vertex[] {v0, v1, v2, v3};
-
-		vertexByteBuffer = BufferUtils.createByteBuffer(Vertex.stride);
 
 		verticesByteBuffer = BufferUtils.createByteBuffer(vertices.length * Vertex.stride);				
 		FloatBuffer verticesFloatBuffer = verticesByteBuffer.asFloatBuffer();
@@ -89,7 +103,12 @@ public class Game {
 		GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL15.GL_STREAM_DRAW);
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 		
-		log.write("Created one large VAO storing independent VBO's for Colors, Vertices, and Indices (NOT THE BEST WAY!)!");
+		log.write("Created one large VAO storing independent VBO's for Vertices and Indices. Interleaved!");
+		
+		modelPos = new Vector3f(0, 0, 0);
+		modelAngle = new Vector3f(0, 0, 0);
+		modelScale = new Vector3f(1, 1, 1);
+		cameraPos = new Vector3f(0, 0, 0);
 	}
 	
 	public void setupShaders() {
@@ -113,6 +132,10 @@ public class Game {
 		
 		log.write("Binding shader variables...");
 		
+		projectionMatrixLocation = GL20.glGetUniformLocation(pID, "projectionMatrix");
+		viewMatrixLocation = GL20.glGetUniformLocation(pID, "viewMatrix");
+		modelMatrixLocation = GL20.glGetUniformLocation(pID, "modelMatrix");
+		
 		GL20.glValidateProgram(pID);
 		
 		log.write("Validated.");
@@ -129,7 +152,34 @@ public class Game {
 		texIDs[1] = tManager.loadTexture("Assets/stGrid2.png", GL13.GL_TEXTURE0);
 	}
 	
+	public void setupMatrices() {
+		projectionMatrix = new Matrix4f();
+		
+		float fieldOfView = 60f;
+		float aspectRatio = (float) dWidth / (float) dHeight;
+		float nearPlane = 0.1f;
+		float farPlane = 100f;
+		
+		float yScale = MathUtils.cot(MathUtils.degToRad(fieldOfView / 2f));
+		float xScale = yScale / aspectRatio;
+		
+		float frustrumLength = farPlane - nearPlane;
+
+		projectionMatrix.m00 = xScale;
+		projectionMatrix.m11 = yScale;
+		projectionMatrix.m22 = -((farPlane + nearPlane) / frustrumLength);
+		projectionMatrix.m23 = -1;
+		projectionMatrix.m32 = -((2 * nearPlane * farPlane) / frustrumLength);
+		
+		viewMatrix = new Matrix4f();
+		modelMatrix = new Matrix4f();
+		matrix44Buffer = BufferUtils.createFloatBuffer(16);
+	}
+	
 	public void Update() {
+		
+		float scaleFactor = 0.01f;
+		
 		while(Keyboard.next()) {
 			if (!Keyboard.getEventKeyState()) continue;
 
@@ -141,30 +191,63 @@ public class Game {
 					texSelector = 1;
 					break;
 			}
+			
+			switch (Keyboard.getEventKey()) {
+				case Keyboard.KEY_RETURN:
+					modelScale = new Vector3f(1, 1, 1);
+					modelPos = new Vector3f(0, 0, 0);
+					modelAngle = new Vector3f(0, 0, 0);
+					break;
+			
+				case Keyboard.KEY_NUMPAD8:
+					modelScale.y = modelScale.y + scaleFactor;
+					break;
+				case Keyboard.KEY_NUMPAD2:
+					modelScale.y = modelScale.y - scaleFactor;
+					break;
+				case Keyboard.KEY_NUMPAD4:
+					modelScale.x = modelScale.x - scaleFactor;
+					break;
+				case Keyboard.KEY_NUMPAD6:
+					modelScale.x = modelScale.x + scaleFactor;
+					break;
+					
+			
+				case Keyboard.KEY_UP:
+					modelPos.y = modelPos.y + scaleFactor;
+					break;
+				case Keyboard.KEY_DOWN:
+					modelPos.y = modelPos.y - scaleFactor;
+					break;
+				case Keyboard.KEY_LEFT:
+					modelPos.x = modelPos.x - scaleFactor;
+					break;
+				case Keyboard.KEY_RIGHT:
+					modelPos.x = modelPos.x + scaleFactor;
+					break;	
+			}
 		}
 		
-		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID);
-
-		for (int i = 0; i < vertices.length; i++) {
-			Vertex vertex = vertices[i];
-			
-			float offsetX = (float) (Math.cos(Math.PI * Math.random()) * 0.01);
-			float offsetY = (float) (Math.sin(Math.PI * Math.random()) * 0.01);
-			
-			float[] xyz = vertex.getXYZ();
-			vertex.setXYZ(xyz[0] + offsetX, xyz[1] + offsetY, xyz[2]);
-
-			FloatBuffer vertexFloatBuffer = vertexByteBuffer.asFloatBuffer();
-			vertexFloatBuffer.rewind();
-			vertexFloatBuffer.put(vertex.getElements());
-			vertexFloatBuffer.flip();
-			
-			GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, i * Vertex.stride, vertexByteBuffer);
-			
-			vertex.setXYZ(xyz[0], xyz[1], xyz[2]);
-		}
-
-		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+		viewMatrix = new Matrix4f();
+		modelMatrix = new Matrix4f();
+		
+		Matrix4f.translate(cameraPos, viewMatrix, viewMatrix);
+		Matrix4f.scale(modelScale, modelMatrix, modelMatrix);
+		Matrix4f.translate(modelPos, modelMatrix, modelMatrix);
+		Matrix4f.rotate(MathUtils.degToRad(modelAngle.z), new Vector3f(0, 0, 1), modelMatrix, modelMatrix);
+		Matrix4f.rotate(MathUtils.degToRad(modelAngle.y), new Vector3f(0, 1, 0), modelMatrix, modelMatrix);
+		Matrix4f.rotate(MathUtils.degToRad(modelAngle.x), new Vector3f(1, 0, 0), modelMatrix, modelMatrix);
+		
+		GL20.glUseProgram(pID);
+		
+		projectionMatrix.store(matrix44Buffer); matrix44Buffer.flip();
+		GL20.glUniformMatrix4(projectionMatrixLocation, false, matrix44Buffer);
+		viewMatrix.store(matrix44Buffer); matrix44Buffer.flip();
+		GL20.glUniformMatrix4(viewMatrixLocation, false, matrix44Buffer);
+		modelMatrix.store(matrix44Buffer); matrix44Buffer.flip();
+		GL20.glUniformMatrix4(modelMatrixLocation, false, matrix44Buffer);
+		
+		GL20.glUseProgram(0);
 	}
 	
 	public void Render() {
