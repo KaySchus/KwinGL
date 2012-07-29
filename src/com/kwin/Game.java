@@ -15,7 +15,7 @@ public class Game {
 	private ShaderManager sManager = new ShaderManager();
 	
 	private int vaoID, vboID, vboiID, indicesCount, vsID, fsID, pID, projectionMatrixLocation, viewMatrixLocation, modelMatrixLocation;
-	private int[] texIDs = new int[2];
+	private int[] texIDs = new int[3];
 	
 	private int texSelector = 0;
 	private Vertex[] vertices = new Vertex[4];
@@ -47,7 +47,7 @@ public class Game {
 		log.write("\n");
 		log.write("Beginning Initialization.... ");
 		
-		GL11.glClearColor(0.4f, 0.6f, 0.9f, 1.0f);
+		GL11.glClearColor(0f, 0f, 0f, 1f);
 		
 		setupQuad();
 		setupShaders();
@@ -63,6 +63,8 @@ public class Game {
 		Vertex v1 = new Vertex(); v1.setXYZ(-0.5f, -0.5f, 0f); v1.setRGB(0, 1, 0); v1.setST(0, 1);
 		Vertex v2 = new Vertex(); v2.setXYZ(0.5f, -0.5f, 0f); v2.setRGB(0, 0, 1); v2.setST(1, 1);
 		Vertex v3 = new Vertex(); v3.setXYZ(0.5f, 0.5f, 0f); v3.setRGB(1, 1, 1); v3.setST(1, 0);
+		//Vertex v4 = new Vertex(); v4.setXYZ(0.5f, 0.5f, -1f); v4.setRGB(1, 1, 1); v4.setST(0, 1);
+		//Vertex v5 = new Vertex(); v5.)
 		
 		vertices = new Vertex[] {v0, v1, v2, v3};
 
@@ -150,6 +152,7 @@ public class Game {
 	public void setupTextures() {
 		texIDs[0] = tManager.loadTexture("Assets/stGrid1.png", GL13.GL_TEXTURE0);
 		texIDs[1] = tManager.loadTexture("Assets/stGrid2.png", GL13.GL_TEXTURE0);
+		texIDs[2] = tManager.loadTexture("Assets/testImage1.png", GL13.GL_TEXTURE0);
 	}
 	
 	public void setupMatrices() {
@@ -189,6 +192,9 @@ public class Game {
 					break;
 				case Keyboard.KEY_2:
 					texSelector = 1;
+					break;
+				case Keyboard.KEY_3:
+					texSelector = 2;
 					break;
 			}
 			

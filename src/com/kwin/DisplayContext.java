@@ -66,10 +66,10 @@ public class DisplayContext {
 			log.write("Display Context was set to OpenGL 3.2.");
 			
 			Display.setDisplayMode(new DisplayMode(DISPLAY_WIDTH, DISPLAY_HEIGHT));
-			setDisplayMode(DISPLAY_WIDTH, DISPLAY_HEIGHT, false);
+			setDisplayMode(DISPLAY_WIDTH, DISPLAY_HEIGHT, true);
 			Display.create(pixelFormat, contextAttributes);
 			
-			log.write("Display Characteristsics - ");
+			log.write("Display Characteristics - ");
 			log.write("\tWidth  - " + DISPLAY_WIDTH);
 			log.write("\tHeight - " + DISPLAY_HEIGHT);
 			log.write("\tBPP    - " + Display.getDisplayMode().getBitsPerPixel());
@@ -176,7 +176,7 @@ public class DisplayContext {
 	}
 	
 	public static void main(String[] args) {
-		DisplayContext context = DisplayContext.createInstance(800, 800, new Game());
+		DisplayContext context = DisplayContext.createInstance(1920, 1080, new Game());
 		context.start();
 	}
 }

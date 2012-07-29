@@ -1,10 +1,10 @@
 Display Context initialized.
 Display Context was set to OpenGL 3.2.
-Display Characteristsics - 
-	Width  - 800
-	Height - 800
-	BPP    - 0
-	Freq   - 0
+Display Characteristics - 
+	Width  - 1920
+	Height - 1080
+	BPP    - 32
+	Freq   - 60
 
 
 Beginning Initialization.... 
@@ -14,4 +14,4 @@ Succesfully loaded vertex and fragment shaders.
 Linking shaders.....
 Binding shader variables...
 Validated.
-Setup Time - 138ms
+Setup Time - 136ms
