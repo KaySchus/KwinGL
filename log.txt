@@ -1,8 +1,8 @@
 Display Context initialized.
-Display Context was set to OpenGL 3.2.
+Display Context was set to OpenGL 3.1.0 - Build 8.15.10.2769.
 Display Characteristics - 
-	Width  - 1920
-	Height - 1080
+	Width  - 1366
+	Height - 768
 	BPP    - 32
 	Freq   - 60
 
@@ -14,4 +14,4 @@ Succesfully loaded vertex and fragment shaders.
 Linking shaders.....
 Binding shader variables...
 Validated.
-Setup Time - 136ms
+Setup Time - 259ms

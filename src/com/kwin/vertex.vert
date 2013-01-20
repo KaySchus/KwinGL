@@ -15,6 +15,6 @@ void main(void) {
 	gl_Position = in_Position;
 	gl_Position = projectionMatrix * viewMatrix * modelMatrix * in_Position;
 	
-	pass_Color = in_Color;
 	pass_TextureCoord = in_TextureCoord;
+	pass_Color = in_Color;
 }

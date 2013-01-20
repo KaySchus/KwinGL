@@ -9,8 +9,14 @@ import org.lwjgl.util.glu.GLU;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
+import com.kwin.graphics.Color;
+import com.kwin.graphics.util.ShaderManager;
+import com.kwin.graphics.util.TextureManager;
+import com.kwin.util.Log;
+import com.kwin.util.MathUtils;
+import com.kwin.util.Vertex;
+
 public class Game {
-	
 	private TextureManager tManager = new TextureManager();
 	private ShaderManager sManager = new ShaderManager();
 	
@@ -59,10 +65,10 @@ public class Game {
 	}
 	
 	public void setupQuad() {
-		Vertex v0 = new Vertex(); v0.setXYZ(-0.5f, 0.5f, 0f); v0.setRGB(1, 0, 0); v0.setST(0, 0);
-		Vertex v1 = new Vertex(); v1.setXYZ(-0.5f, -0.5f, 0f); v1.setRGB(0, 1, 0); v1.setST(0, 1);
-		Vertex v2 = new Vertex(); v2.setXYZ(0.5f, -0.5f, 0f); v2.setRGB(0, 0, 1); v2.setST(1, 1);
-		Vertex v3 = new Vertex(); v3.setXYZ(0.5f, 0.5f, 0f); v3.setRGB(1, 1, 1); v3.setST(1, 0);
+		Vertex v0 = new Vertex(); v0.setXYZ(-0.5f, 0.5f, 0f); v0.setColor(new Color(1.0f, 0f, 0f)); v0.setST(0, 0);
+		Vertex v1 = new Vertex(); v1.setXYZ(-0.5f, -0.5f, 0f); v1.setColor(new Color(0f, 1.0f, 0f)); v1.setST(0, 1);
+		Vertex v2 = new Vertex(); v2.setXYZ(0.5f, -0.5f, 0f); v2.setColor(new Color(0f, 0f, 1.0f)); v2.setST(1, 1);
+		Vertex v3 = new Vertex(); v3.setXYZ(0.5f, 0.5f, 0f); v3.setColor(new Color(1f, 1f, 1f)); v3.setST(1, 0);
 		//Vertex v4 = new Vertex(); v4.setXYZ(0.5f, 0.5f, -1f); v4.setRGB(1, 1, 1); v4.setST(0, 1);
 		//Vertex v5 = new Vertex(); v5.)
 		
@@ -205,16 +211,16 @@ public class Game {
 					modelAngle = new Vector3f(0, 0, 0);
 					break;
 			
-				case Keyboard.KEY_NUMPAD8:
+				case Keyboard.KEY_W:
 					modelScale.y = modelScale.y + scaleFactor;
 					break;
-				case Keyboard.KEY_NUMPAD2:
+				case Keyboard.KEY_S:
 					modelScale.y = modelScale.y - scaleFactor;
 					break;
-				case Keyboard.KEY_NUMPAD4:
+				case Keyboard.KEY_A:
 					modelScale.x = modelScale.x - scaleFactor;
 					break;
-				case Keyboard.KEY_NUMPAD6:
+				case Keyboard.KEY_D:
 					modelScale.x = modelScale.x + scaleFactor;
 					break;
 					
@@ -266,7 +272,7 @@ public class Game {
 		GL20.glUseProgram(pID);
 		
 		GL13.glActiveTexture(GL13.GL_TEXTURE0);
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, texIDs[texSelector]);
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, texIDs[0]);
 		
 		GL30.glBindVertexArray(vaoID);
 		GL20.glEnableVertexAttribArray(0);
