@@ -6,7 +6,7 @@ public class Vertex {
 	private float[] xyzw = new float[] { 0f, 0f, 0f, 1f };
 	private float[] st = new float[] { 0f, 0f };
 	
-	private Color color;
+	private Color color = Color.WHITE;
 	
 	public static final int elementBytes = 4;
 	

@@ -10,6 +10,7 @@ import org.lwjgl.opengl.PixelFormat;
 
 import com.kwin.Game;
 import com.kwin.util.Log;
+import com.kwin.util.MathUtils;
 
 public class DisplayContext {
 	
@@ -20,6 +21,14 @@ public class DisplayContext {
 	private static DisplayContext instance = null;
 	private Game game;
 	public Log log;
+	
+	public float fieldOfView = 90f;
+	public float aspectRatio = 0;
+	public float xScale = 0;
+	public float yScale = 0;
+	
+	public float X_PIXEL_CONVERSION = 0;
+	public float Y_PIXEL_CONVERSION = 0;
 	
 	public static DisplayContext createInstance(int width, int height, Game game) {
 		if (instance == null) {
@@ -43,6 +52,13 @@ public class DisplayContext {
 		this.DISPLAY_HEIGHT = height;
 		this.game = game;
 		
+		aspectRatio = DISPLAY_WIDTH / DISPLAY_HEIGHT;
+		yScale = MathUtils.cot(MathUtils.degToRad(fieldOfView / 2f));
+		xScale = yScale / aspectRatio;
+		
+		X_PIXEL_CONVERSION = (aspectRatio * 2) / DISPLAY_WIDTH;
+		Y_PIXEL_CONVERSION = (yScale * 2) / DISPLAY_HEIGHT;
+		
 		log = Log.getInstance();
 		log.write("Display Context initialized.");
 	}
@@ -51,6 +67,7 @@ public class DisplayContext {
 	public int Height() { return DISPLAY_HEIGHT; }
 	
 	public void start() {
+		System.out.println(X_PIXEL_CONVERSION);
 		try {
 			Display.create();
 			String maxGLVer = GL11.glGetString(GL11.GL_VERSION);
@@ -58,7 +75,7 @@ public class DisplayContext {
 			Display.destroy();
 			
 			PixelFormat pixelFormat = new PixelFormat();
-			ContextAttribs contextAttributes = new ContextAttribs(3, 1);
+			ContextAttribs contextAttributes = new ContextAttribs(3, 2);
 			contextAttributes.withForwardCompatible(true);
 			
 			if (maxGLVer.equals("4.2.0")) {

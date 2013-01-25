@@ -9,7 +9,6 @@ import org.lwjgl.util.glu.GLU;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
-import com.kwin.graphics.Color;
 import com.kwin.graphics.util.ShaderManager;
 import com.kwin.graphics.util.TextureManager;
 import com.kwin.util.Log;
@@ -65,12 +64,10 @@ public class Game {
 	}
 	
 	public void setupQuad() {
-		Vertex v0 = new Vertex(); v0.setXYZ(-0.5f, 0.5f, 0f); v0.setColor(new Color(1.0f, 0f, 0f)); v0.setST(0, 0);
-		Vertex v1 = new Vertex(); v1.setXYZ(-0.5f, -0.5f, 0f); v1.setColor(new Color(0f, 1.0f, 0f)); v1.setST(0, 1);
-		Vertex v2 = new Vertex(); v2.setXYZ(0.5f, -0.5f, 0f); v2.setColor(new Color(0f, 0f, 1.0f)); v2.setST(1, 1);
-		Vertex v3 = new Vertex(); v3.setXYZ(0.5f, 0.5f, 0f); v3.setColor(new Color(1f, 1f, 1f)); v3.setST(1, 0);
-		//Vertex v4 = new Vertex(); v4.setXYZ(0.5f, 0.5f, -1f); v4.setRGB(1, 1, 1); v4.setST(0, 1);
-		//Vertex v5 = new Vertex(); v5.)
+		Vertex v0 = new Vertex(); v0.setXYZ(0f, 0f, 0f); v0.setST(0, 0);
+		Vertex v1 = new Vertex(); v1.setXYZ(0f, 1.0f, 0f); v1.setST(0, 1);
+		Vertex v2 = new Vertex(); v2.setXYZ(1.0f, 1.0f, 0f); v2.setST(1, 1);
+		Vertex v3 = new Vertex(); v3.setXYZ(1.0f, 0f, 0f); v3.setST(1, 0);
 		
 		vertices = new Vertex[] {v0, v1, v2, v3};
 
@@ -115,8 +112,8 @@ public class Game {
 		
 		modelPos = new Vector3f(0, 0, 0);
 		modelAngle = new Vector3f(0, 0, 0);
-		modelScale = new Vector3f(1, 1, 1);
-		cameraPos = new Vector3f(0, 0, 0);
+		modelScale = new Vector3f(1f, 1f, 1);
+		cameraPos = new Vector3f(0, 0, 1f);
 	}
 	
 	public void setupShaders() {
@@ -164,21 +161,36 @@ public class Game {
 	public void setupMatrices() {
 		projectionMatrix = new Matrix4f();
 		
-		float fieldOfView = 60f;
+		float fieldOfView = 90f;
 		float aspectRatio = (float) dWidth / (float) dHeight;
-		float nearPlane = 0.1f;
-		float farPlane = 100f;
+		
+		log.write("Aspect Ratio - " + aspectRatio);
+		
+		float nearPlane = -1.0f;
+		float farPlane = 1.0f;
 		
 		float yScale = MathUtils.cot(MathUtils.degToRad(fieldOfView / 2f));
+		log.write("Y Scale - " + yScale);
 		float xScale = yScale / aspectRatio;
+		log.write("X Scale - " + xScale);
 		
-		float frustrumLength = farPlane - nearPlane;
+		float left = 1920;
+		float right = 0;
+		float bottom = 1080;
+		float top = 0;
+		
+		float tx = - (right + left) / (right - left);
+		float ty = - (top + bottom) / (top - bottom);
+		float tz = - (farPlane + nearPlane) / (farPlane - nearPlane);
 
-		projectionMatrix.m00 = xScale;
-		projectionMatrix.m11 = yScale;
-		projectionMatrix.m22 = -((farPlane + nearPlane) / frustrumLength);
-		projectionMatrix.m23 = -1;
-		projectionMatrix.m32 = -((2 * nearPlane * farPlane) / frustrumLength);
+
+		projectionMatrix.m00 = 2 / (right - left);
+		projectionMatrix.m03 = tx;
+		projectionMatrix.m11 = 2 / (top - bottom);
+		projectionMatrix.m13 = ty;
+		projectionMatrix.m22 = -2 / (farPlane - nearPlane);
+		projectionMatrix.m23 = tz;
+		projectionMatrix.m33 = 1;
 		
 		viewMatrix = new Matrix4f();
 		modelMatrix = new Matrix4f();
@@ -272,7 +284,7 @@ public class Game {
 		GL20.glUseProgram(pID);
 		
 		GL13.glActiveTexture(GL13.GL_TEXTURE0);
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, texIDs[0]);
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, texIDs[texSelector]);
 		
 		GL30.glBindVertexArray(vaoID);
 		GL20.glEnableVertexAttribArray(0);
